@@ -1,0 +1,3 @@
+type=1
+tables=xx01,xx02,xx03
+delete-condition=WHERE 1=1
