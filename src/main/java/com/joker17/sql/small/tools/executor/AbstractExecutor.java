@@ -6,6 +6,11 @@ import java.io.IOException;
 
 public abstract class AbstractExecutor<T extends BaseExecutorParam> {
 
+    /**
+     * 名称
+     *
+     * @return
+     */
     public abstract String name();
 
 

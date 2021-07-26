@@ -1,0 +1,2 @@
+type=2
+tables=SELECT 'xx01' UNION SELECT 'xx02' UNION SELECT 'xx03';

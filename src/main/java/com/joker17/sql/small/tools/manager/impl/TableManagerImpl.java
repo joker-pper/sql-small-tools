@@ -19,4 +19,9 @@ public class TableManagerImpl implements TableManager {
     public void execute(JdbcTemplate jdbcTemplate, String sql) {
         jdbcTemplate.execute(sql);
     }
+
+    @Override
+    public void batchUpdate(JdbcTemplate jdbcTemplate, String... sql) {
+        jdbcTemplate.batchUpdate(sql);
+    }
 }

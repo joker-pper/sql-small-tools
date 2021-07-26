@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class ExecuteSqlHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecuteSqlHelper.class);
+    private final static TableManager TABLE_MANAGER = SqlManagerFactory.getTableManagerInstance();
 
     private static final ExecuteSqlHelperManager HELPER_MANAGER = new ExecuteSqlHelperManagerImpl();
 
@@ -22,14 +23,48 @@ public class ExecuteSqlHelper {
         HELPER_MANAGER.execute(jdbcTemplate, sqls, maxThreads);
     }
 
+
+    public static void execute(JdbcTemplate jdbcTemplate, String sql, Logger logger) {
+        SqlTypeEnum sqlTypeEnum = SqlTypeEnum.getBySql(sql);
+        switch (sqlTypeEnum) {
+            case UPDATE:
+                TakeTimeTools takeTimeTools = TakeTimeTools.of(() -> TABLE_MANAGER.update(jdbcTemplate, sql));
+                logger.info("{} ==> update rows: {}, take time: {}s", sql, takeTimeTools.getResult(), takeTimeTools.toExactSeconds());
+                break;
+            case DELETE:
+                takeTimeTools = TakeTimeTools.of(() -> TABLE_MANAGER.delete(jdbcTemplate, sql));
+                logger.info("{} ==> delete rows: {}, take time: {}s", sql, takeTimeTools.getResult(), takeTimeTools.toExactSeconds());
+                break;
+            case INSERT:
+                takeTimeTools = TakeTimeTools.of(() -> TABLE_MANAGER.update(jdbcTemplate, sql));
+                logger.info("{} ==> insert rows: {}, take time: {}s", sql, takeTimeTools.getResult(), takeTimeTools.toExactSeconds());
+                break;
+            case SELECT:
+                takeTimeTools = TakeTimeTools.of(() -> {
+                    TABLE_MANAGER.execute(jdbcTemplate, sql);
+                    return null;
+                });
+                logger.info("{} ==> select take time: {}s", sql, takeTimeTools.toExactSeconds());
+                break;
+            case OTHER:
+                takeTimeTools = TakeTimeTools.of(() -> {
+                    TABLE_MANAGER.execute(jdbcTemplate, sql);
+                    return null;
+                });
+                logger.info("{} ==> other take time: {}s", sql, takeTimeTools.toExactSeconds());
+                break;
+            default:
+                throw new UnsupportedOperationException("not support sqlTypeEnum: " + sqlTypeEnum.name());
+        }
+
+    }
+
     interface ExecuteSqlHelperManager {
         void execute(JdbcTemplate jdbcTemplate, String[] sqls, int maxThreads);
     }
 
 
     static class ExecuteSqlHelperManagerImpl implements ExecuteSqlHelperManager {
-
-        private final static TableManager TABLE_MANAGER = SqlManagerFactory.getTableManagerInstance();
 
         @Override
         public void execute(JdbcTemplate jdbcTemplate, String[] sqls, int maxThreads) {
@@ -82,40 +117,8 @@ public class ExecuteSqlHelper {
 
 
         private void execute(String sql, JdbcTemplate jdbcTemplate) {
-            SqlTypeEnum sqlTypeEnum = SqlTypeEnum.getBySql(sql);
-            switch (sqlTypeEnum) {
-                case UPDATE:
-                    TakeTimeTools takeTimeTools = TakeTimeTools.of(() -> TABLE_MANAGER.update(jdbcTemplate, sql));
-                    LOGGER.info("{} ==> update rows: {}, take time: {}s", sql, takeTimeTools.getResult(), takeTimeTools.toExactSeconds());
-                    break;
-                case DELETE:
-                    takeTimeTools = TakeTimeTools.of(() -> TABLE_MANAGER.delete(jdbcTemplate, sql));
-                    LOGGER.info("{} ==> delete rows: {}, take time: {}s", sql, takeTimeTools.getResult(), takeTimeTools.toExactSeconds());
-                    break;
-                case INSERT:
-                    takeTimeTools = TakeTimeTools.of(() -> TABLE_MANAGER.update(jdbcTemplate, sql));
-                    LOGGER.info("{} ==> insert rows: {}, take time: {}s", sql, takeTimeTools.getResult(), takeTimeTools.toExactSeconds());
-                    break;
-                case SELECT:
-                    takeTimeTools = TakeTimeTools.of(() -> {
-                        TABLE_MANAGER.execute(jdbcTemplate, sql);
-                        return null;
-                    });
-                    LOGGER.info("{} ==> select take time: {}s", sql, takeTimeTools.toExactSeconds());
-                    break;
-                case OTHER:
-                    takeTimeTools = TakeTimeTools.of(() -> {
-                        TABLE_MANAGER.execute(jdbcTemplate, sql);
-                        return null;
-                    });
-                    LOGGER.info("{} ==> other take time: {}s", sql, takeTimeTools.toExactSeconds());
-                    break;
-                default:
-                    throw new UnsupportedOperationException("not support sqlTypeEnum: " + sqlTypeEnum.name());
-            }
-
+            ExecuteSqlHelper.execute(jdbcTemplate, sql, LOGGER);
         }
-
 
     }
 
