@@ -6,6 +6,10 @@ import java.util.Properties;
 
 public class PropertiesUtils {
 
+    private PropertiesUtils() {
+
+    }
+
     /**
      * 加载properties
      *

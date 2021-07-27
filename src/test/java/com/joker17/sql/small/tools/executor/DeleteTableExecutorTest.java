@@ -24,7 +24,7 @@ public class DeleteTableExecutorTest {
         String dataSource = ClassPathHelper.getFilePath("db.properties");
         String deleteTable = ClassPathHelper.getFilePath("delete-table/delete-table1.text");
 
-        String maxThreads = "3";
+        String maxThreads = "1";
 
         String line = String.format("-data-source %s -delete-table %s -max-threads %s",
                 dataSource, deleteTable, maxThreads);
@@ -39,7 +39,7 @@ public class DeleteTableExecutorTest {
         String dataSource = ClassPathHelper.getFilePath("db.properties");
         String deleteTable = ClassPathHelper.getFilePath("delete-table/delete-table2.text");
 
-        String maxThreads = "3";
+        String maxThreads = "1";
 
         String line = String.format("-data-source %s -delete-table %s -max-threads %s",
                 dataSource, deleteTable, maxThreads);

@@ -4,6 +4,7 @@ import com.joker17.sql.small.tools.factory.SqlManagerFactory;
 import com.joker17.sql.small.tools.manager.TableManager;
 import com.joker17.sql.small.tools.support.MultipleThreadRunner;
 import com.joker17.sql.small.tools.support.TakeTimeTools;
+import com.joker17.sql.small.tools.utils.SqlAnalysisUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,18 +126,18 @@ public class ReplaceTableExecuteHelper {
 
         private void execute(String table, String sql, JdbcTemplate jdbcTemplate) {
             //替换sql模板中的table占位符为实际值
-            String toExecuteSql = StringUtils.trim(StringUtils.replace(sql, "#{table}", table));
-            String[] toExecuteSqlResults = StringUtils.split(toExecuteSql, ";");
+            sql = StringUtils.replace(sql, "#{table}", table);
+            String[] toExecuteSqlResults = SqlAnalysisUtils.getSqlResults(sql);
             if (toExecuteSqlResults.length == 1) {
-                ExecuteSqlHelper.execute(jdbcTemplate, toExecuteSql, LOGGER);
+                ExecuteSqlHelper.execute(jdbcTemplate, toExecuteSqlResults[0], LOGGER);
             } else {
+                String mergeSqlText = SqlAnalysisUtils.getMergeSqlText(toExecuteSqlResults);
                 TakeTimeTools takeTimeTools = TakeTimeTools.of(() -> {
-                    TABLE_MANAGER.batchUpdate(jdbcTemplate, toExecuteSqlResults);
+                    TABLE_MANAGER.update(jdbcTemplate, mergeSqlText);
                     return null;
                 });
-                LOGGER.info("{} ==> execute take time: {}s", toExecuteSql, takeTimeTools.toExactSeconds());
+                LOGGER.info("{} ==> execute take time: {}s", mergeSqlText, takeTimeTools.toExactSeconds());
             }
-
         }
     }
 }

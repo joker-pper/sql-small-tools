@@ -25,7 +25,7 @@ public class ReplaceTableExecuteExecutorTest {
         String replaceTableExecute = ClassPathHelper.getFilePath("replace-table-execute/replace-table-execute1.text");
         String sqlText = ClassPathHelper.getFilePath("replace-table-execute/replace-table-execute-sql.text");
 
-        String maxThreads = "3";
+        String maxThreads = "1";
 
         String line = String.format("-data-source %s -replace-table-execute %s -sql-text %s -max-threads %s",
                 dataSource, replaceTableExecute, sqlText, maxThreads);
@@ -41,11 +41,19 @@ public class ReplaceTableExecuteExecutorTest {
         String replaceTableExecute = ClassPathHelper.getFilePath("replace-table-execute/replace-table-execute2.text");
         String sqlText = ClassPathHelper.getFilePath("replace-table-execute/replace-table-execute-sql.text");
 
-        String maxThreads = "3";
+        String maxThreads = "1";
         String line = String.format("-data-source %s -replace-table-execute %s -sql-text %s -max-threads %s",
                 dataSource, replaceTableExecute, sqlText, maxThreads);
 
         String[] args = line.split(" ");
+        ReplaceTableExecuteExecutor.INSTANCE.execute(args);
+
+        //测试执行包含存储过程的sql text
+        sqlText = ClassPathHelper.getFilePath("replace-table-execute/replace-table-execute-sql-with-procedure.text");
+        line = String.format("-data-source %s -replace-table-execute %s -sql-text %s -max-threads %s",
+                dataSource, replaceTableExecute, sqlText, maxThreads);
+
+        args = line.split(" ");
         ReplaceTableExecuteExecutor.INSTANCE.execute(args);
     }
 }

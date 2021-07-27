@@ -3,11 +3,14 @@ package com.joker17.sql.small.tools.utils;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class FileUtils {
+
+    private FileUtils() {
+
+    }
 
     /**
      * mkdirs

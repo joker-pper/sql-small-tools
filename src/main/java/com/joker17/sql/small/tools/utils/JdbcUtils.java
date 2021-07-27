@@ -9,6 +9,10 @@ import java.util.Properties;
 
 public class JdbcUtils {
 
+    private JdbcUtils() {
+
+    }
+
     /**
      * 获取datasource
      *
