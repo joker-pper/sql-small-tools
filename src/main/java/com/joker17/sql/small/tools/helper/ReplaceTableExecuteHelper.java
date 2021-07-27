@@ -26,10 +26,10 @@ public class ReplaceTableExecuteHelper {
      *
      * @param jdbcTemplate
      * @param tablesQuerySql
-     * @param sql
+     * @param sqlText
      * @param maxThreads
      */
-    public static void execute(JdbcTemplate jdbcTemplate, String tablesQuerySql, String sql, int maxThreads) {
+    public static void execute(JdbcTemplate jdbcTemplate, String tablesQuerySql, String sqlText, int maxThreads) {
         List<String> tableList = jdbcTemplate.queryForList(tablesQuerySql, String.class);
         String[] tables;
         if (tableList != null && !tableList.isEmpty()) {
@@ -37,7 +37,7 @@ public class ReplaceTableExecuteHelper {
         } else {
             throw new IllegalArgumentException("table query sql not found tables: " + tablesQuerySql);
         }
-        HELPER_MANAGER.execute(jdbcTemplate, tables, sql, maxThreads);
+        HELPER_MANAGER.execute(jdbcTemplate, tables, sqlText, maxThreads);
     }
 
 
@@ -46,11 +46,11 @@ public class ReplaceTableExecuteHelper {
      *
      * @param jdbcTemplate
      * @param tables
-     * @param sql
+     * @param sqlText
      * @param maxThreads
      */
-    public static void execute(JdbcTemplate jdbcTemplate, String[] tables, String sql, int maxThreads) {
-        HELPER_MANAGER.execute(jdbcTemplate, tables, sql, maxThreads);
+    public static void execute(JdbcTemplate jdbcTemplate, String[] tables, String sqlText, int maxThreads) {
+        HELPER_MANAGER.execute(jdbcTemplate, tables, sqlText, maxThreads);
     }
 
     interface ReplaceTableHelperManager {
@@ -60,10 +60,10 @@ public class ReplaceTableExecuteHelper {
          *
          * @param jdbcTemplate
          * @param tables
-         * @param sql
+         * @param sqlText
          * @param maxThreads
          */
-        void execute(JdbcTemplate jdbcTemplate, String[] tables, String sql, int maxThreads);
+        void execute(JdbcTemplate jdbcTemplate, String[] tables, String sqlText, int maxThreads);
 
     }
 
@@ -72,7 +72,7 @@ public class ReplaceTableExecuteHelper {
         private final static TableManager TABLE_MANAGER = SqlManagerFactory.getTableManagerInstance();
 
         @Override
-        public void execute(JdbcTemplate jdbcTemplate, String[] tables, String sql, int maxThreads) {
+        public void execute(JdbcTemplate jdbcTemplate, String[] tables, String sqlText, int maxThreads) {
             if (tables == null || tables.length == 0) {
                 throw new IllegalArgumentException("tables must be not empty");
             }
@@ -81,7 +81,7 @@ public class ReplaceTableExecuteHelper {
                 throw new IllegalArgumentException("maxThreads must be gt 0");
             }
 
-            if (StringUtils.isEmpty(sql)) {
+            if (StringUtils.isEmpty(sqlText)) {
                 throw new IllegalArgumentException("sql must be not empty");
             }
 
@@ -89,14 +89,14 @@ public class ReplaceTableExecuteHelper {
             if (maxThreads == 1 || tableSize == 1) {
                 for (int i = 0; i < tableSize; i++) {
                     final String table = tables[i];
-                    execute(table, sql, jdbcTemplate);
+                    execute(table, sqlText, jdbcTemplate);
                 }
             } else {
                 MultipleThreadRunner multipleThreadRunner = new MultipleThreadRunner();
                 if (tableSize <= maxThreads) {
                     for (int i = 0; i < tableSize; i++) {
                         final String table = tables[i];
-                        multipleThreadRunner.addTask(() -> execute(table, sql, jdbcTemplate));
+                        multipleThreadRunner.addTask(() -> execute(table, sqlText, jdbcTemplate));
                     }
                 } else {
                     int avgNum = tableSize / maxThreads;
@@ -108,14 +108,14 @@ public class ReplaceTableExecuteHelper {
                             for (int j = 0; j < avgNum; j++) {
                                 //计算table索引位置
                                 int tableIndex = threadIndex * avgNum + j;
-                                execute(tables[tableIndex], sql, jdbcTemplate);
+                                execute(tables[tableIndex], sqlText, jdbcTemplate);
                             }
 
                             //剩余要处理的table
                             if (threadIndex < surplusNum) {
                                 //计算table索引位置
                                 int tableIndex = maxThreads * avgNum + threadIndex;
-                                execute(tables[tableIndex], sql, jdbcTemplate);
+                                execute(tables[tableIndex], sqlText, jdbcTemplate);
                             }
                         });
                     }
@@ -124,10 +124,10 @@ public class ReplaceTableExecuteHelper {
             }
         }
 
-        private void execute(String table, String sql, JdbcTemplate jdbcTemplate) {
+        private void execute(String table, String sqlText, JdbcTemplate jdbcTemplate) {
             //替换sql模板中的table占位符为实际值
-            sql = StringUtils.replace(sql, "#{table}", table);
-            String[] toExecuteSqlResults = SqlAnalysisUtils.getSqlResults(sql);
+            sqlText = StringUtils.replace(sqlText, "#{table}", table);
+            String[] toExecuteSqlResults = SqlAnalysisUtils.getSqlResults(sqlText);
             if (toExecuteSqlResults.length == 1) {
                 ExecuteSqlHelper.execute(jdbcTemplate, toExecuteSqlResults[0], LOGGER);
             } else {

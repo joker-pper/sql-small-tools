@@ -39,7 +39,7 @@ public class SqlAnalysisUtils {
             }
             results = resultList.toArray(new String[resultList.size()]);
         } else {
-            results = new String[]{sqlText};
+            results = new String[]{trimSql};
         }
         return results;
     }

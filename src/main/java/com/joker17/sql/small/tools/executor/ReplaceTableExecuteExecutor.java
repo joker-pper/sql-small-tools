@@ -76,16 +76,16 @@ public class ReplaceTableExecuteExecutor extends AbstractExecutor<ReplaceTableEx
         }
 
         //获取sql模板内容
-        String sql = FileUtils.getAsString(sqlTextFile);
+        String sqlText = FileUtils.getAsString(sqlTextFile);
 
         JdbcTemplate jdbcTemplate = JdbcUtils.getJdbcTemplate(dataSourcePropertiesFile);
         switch (replaceTableExecuteConfigTypeEnum) {
             case QUERY_VALUES:
-                ReplaceTableExecuteHelper.execute(jdbcTemplate, replaceTableExecuteConfig.getTables(), sql, param.getMaxThreads());
+                ReplaceTableExecuteHelper.execute(jdbcTemplate, replaceTableExecuteConfig.getTables(), sqlText, param.getMaxThreads());
                 break;
             case VALUES:
                 String tables[] = StringUtils.split(replaceTableExecuteConfig.getTables(), ",");
-                ReplaceTableExecuteHelper.execute(jdbcTemplate, tables, sql, param.getMaxThreads());
+                ReplaceTableExecuteHelper.execute(jdbcTemplate, tables, sqlText, param.getMaxThreads());
                 break;
             default:
                 throw new UnsupportedOperationException("not support replaceTableExecuteConfigTypeEnum: " + replaceTableExecuteConfigTypeEnum.name());
