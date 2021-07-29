@@ -5,6 +5,9 @@ CREATE TABLE `#{table}` (
           `name` varchar(128) DEFAULT NULL,
           PRIMARY KEY (`id`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+---
+
+---sql
 # 调用存储过程 #
 DROP PROCEDURE IF EXISTS `insert_#{table}_procedure`;
 CREATE PROCEDURE `insert_#{table}_procedure`(n int)
@@ -14,8 +17,7 @@ BEGIN
         WHILE i<= n
             DO
             INSERT INTO #{table}(id, name)
-            #VALUES (1, CONCAT("00000",i) );
-            VALUES (i, CONCAT("00000",i) );
+            VALUES (i, CONCAT("00000",i));
             SET i = i + 1;
 			IF (i % 500 = 0) THEN
 			    COMMIT;
