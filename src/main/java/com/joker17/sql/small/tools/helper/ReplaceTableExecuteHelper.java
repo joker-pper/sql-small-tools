@@ -128,16 +128,17 @@ public class ReplaceTableExecuteHelper {
             //替换sql模板中的table占位符为实际值
             sqlText = StringUtils.replace(sqlText, "#{table}", table);
             String[] toExecuteSqlResults = SqlAnalysisUtils.getSqlResults(sqlText);
+            String toExecuteSql;
             if (toExecuteSqlResults.length == 1) {
-                ExecuteSqlHelper.execute(jdbcTemplate, toExecuteSqlResults[0], LOGGER);
+                toExecuteSql = toExecuteSqlResults[0];
             } else {
-                String mergeSqlText = SqlAnalysisUtils.getMergeSqlText(toExecuteSqlResults);
-                TakeTimeTools takeTimeTools = TakeTimeTools.of(() -> {
-                    TABLE_MANAGER.update(jdbcTemplate, mergeSqlText);
-                    return null;
-                });
-                LOGGER.info("{} ==> execute take time: {}s", mergeSqlText, takeTimeTools.toExactSeconds());
+                toExecuteSql = SqlAnalysisUtils.getMergeSqlText(toExecuteSqlResults);
             }
+            TakeTimeTools takeTimeTools = TakeTimeTools.of(() -> {
+                TABLE_MANAGER.update(jdbcTemplate, toExecuteSql);
+                return null;
+            });
+            LOGGER.info("{} ==> execute take time: {}s", toExecuteSql, takeTimeTools.toExactSeconds());
         }
     }
 }

@@ -48,12 +48,29 @@
           
   ``` 
 
++ execute-sql
+
+  - 通过自定义sql模板执行对应的sql,参数:
+    - -data-source: 数据源配置文件
+    - -sql-text: sql配置文件, 支持多组sql(其中开始标签为---sql 结束标签为---)
+    - -max-threads: 最大线程数
+  
+  - 命令
+  ``` 
+   # 执行单个sql示例
+   java -jar sql-small-tools-1.0.0-SNAPSHOT.jar execute-sql -data-source ../src/test/resources/db.properties  -sql-text ../src/test/resources/execute-sql/execute-sql1.text -max-threads 1
+  
+   # 执行多组sql示例
+   java -jar sql-small-tools-1.0.0-SNAPSHOT.jar execute-sql -data-source ../src/test/resources/db.properties  -sql-text ../src/test/resources/execute-sql/execute-sql2.text -max-threads 1
+     
+  ``` 
+
 ## other
 ```
-    # 数据源连接url参数官方文档
+    # mysql数据源连接url参数官方文档
     https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-configuration-properties.html
 
-    # 数据源连接url部分参数介绍
+    # mysql数据源连接url部分参数介绍
     allowMultiQueries=true:
     可以在sql语句后携带分号,实现多语句执行
     https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-security.html#cj-conn-prop_allowMultiQueries
@@ -68,4 +85,8 @@
     3. 通过maven test进行初始化表结构
     4. maven package,找到对应的target目录,通过命令行执行对应的命令即可
  
+    # 执行出现bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException的原因
+    1. sql语句存在错误
+    2. 存在非法字符,e.g: \uFEFF (一般是转换编码格式为UTF8出现)
+
 ``` 

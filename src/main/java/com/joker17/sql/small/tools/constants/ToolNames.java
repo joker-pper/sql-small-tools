@@ -11,4 +11,9 @@ public class ToolNames {
      * replace table execute
      */
     public static final String REPLACE_TABLE_EXECUTE = "replace-table-execute";
+
+    /**
+     * execute sql
+     */
+    public static final String EXECUTE_SQL = "execute-sql";
 }

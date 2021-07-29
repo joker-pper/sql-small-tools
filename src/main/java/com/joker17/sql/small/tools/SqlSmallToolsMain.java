@@ -1,7 +1,6 @@
 package com.joker17.sql.small.tools;
 
 import com.joker17.sql.small.tools.executor.AbstractExecutor;
-import com.joker17.sql.small.tools.executor.DeleteTableExecutor;
 import com.joker17.sql.small.tools.factory.ExecutorFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

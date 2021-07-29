@@ -25,6 +25,8 @@ public class JdbcUtils {
         hikariDataSource.setPassword(properties.getProperty("datasource.password"));
         hikariDataSource.setJdbcUrl(properties.getProperty("datasource.url"));
         hikariDataSource.setDriverClassName(properties.getProperty("datasource.driver-class-name"));
+        hikariDataSource.setMinimumIdle(1);
+        hikariDataSource.setMaximumPoolSize(20);
         return hikariDataSource;
     }
 
