@@ -1,5 +1,11 @@
 # sql-small-tools
 
+    简易批量sql运维小工具(通过spring jdbc template实现)
+    理论上支持已添加驱动的数据库
+
+## supports
+    MySQL (已验证) | SQLSERVER | ORACLE
+
 ## features
 
 + delete-table 
@@ -50,7 +56,7 @@
 
 + execute-sql
 
-  - 通过自定义sql模板执行对应的sql,参数:
+  - 通过自定义sql执行对应的sql,参数:
     - -data-source: 数据源配置文件
     - -sql-text: sql配置文件, 支持多组sql(其中开始标签为---sql 结束标签为---)
     - -max-threads: 最大线程数
@@ -79,7 +85,7 @@
     用于解决连接数据库时抛出Public Key Retrieval is not allowed错误
     https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-security.html#cj-conn-prop_allowPublicKeyRetrieval
 
-    # 若需尝试运行Readme中的示例命令
+    # 若需尝试运行Readme中的示例命令 (Mysql)
     1. 修改db.properties 
     2. 创建对应的database 
     3. 通过maven test进行初始化表结构
