@@ -35,7 +35,7 @@ public class AllocationTaskSupport {
      * @return
      */
     public int[] getStartIndexAndEndIndex(int threadIndex) {
-        Assert.isTrue(threadIndex < maxThreads, "index must lt maxThreads");
+        Assert.isTrue(threadIndex < maxThreads, "threadIndex must lt maxThreads");
 
         int startIndex = threadIndex * avgNum;
         int endIndex = startIndex + avgNum - 1;
@@ -50,7 +50,7 @@ public class AllocationTaskSupport {
      * @return
      */
     public int getSurplusIndex(int threadIndex) {
-        Assert.isTrue(threadIndex < maxThreads, "index must lt maxThreads");
+        Assert.isTrue(threadIndex < maxThreads, "threadIndex must lt maxThreads");
         if (threadIndex < surplusNum) {
             return maxThreads * avgNum + threadIndex;
         }
