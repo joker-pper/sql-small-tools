@@ -3,6 +3,7 @@ package com.joker17.sql.small.tools.helper;
 import com.joker17.sql.small.tools.enums.SqlTypeEnum;
 import com.joker17.sql.small.tools.factory.SqlManagerFactory;
 import com.joker17.sql.small.tools.manager.TableManager;
+import com.joker17.sql.small.tools.support.AllocationTaskSupport;
 import com.joker17.sql.small.tools.support.MultipleThreadRunner;
 import com.joker17.sql.small.tools.support.TakeTimeTools;
 import org.slf4j.Logger;
@@ -90,23 +91,21 @@ public class ExecuteSqlHelper {
                         multipleThreadRunner.addTask(() -> execute(sql, jdbcTemplate));
                     }
                 } else {
-                    int avgNum = sqlSize / maxThreads;
-                    int surplusNum = sqlSize % maxThreads;
+                    AllocationTaskSupport allocationTaskSupport = AllocationTaskSupport.of(sqlSize, maxThreads);
+
                     for (int i = 0; i < maxThreads; i++) {
                         final int threadIndex = i;
+                        int[] betweenIndexResults = allocationTaskSupport.getStartIndexAndEndIndex(threadIndex);
                         multipleThreadRunner.addTask(() -> {
-                            //每个线程平均要处理的table
-                            for (int j = 0; j < avgNum; j++) {
-                                //计算索引位置
-                                int sqlIndex = threadIndex * avgNum + j;
-                                execute(sqls[sqlIndex], jdbcTemplate);
+                            //当前线程要处理的start index -> end index
+                            for (int j = betweenIndexResults[0]; j <= betweenIndexResults[1]; j++) {
+                                execute(sqls[j], jdbcTemplate);
                             }
 
-                            //剩余要处理的table
-                            if (threadIndex < surplusNum) {
-                                //计算索引位置
-                                int sqlIndex = maxThreads * avgNum + threadIndex;
-                                execute(sqls[sqlIndex], jdbcTemplate);
+                            //当前线程要处理的surplus index
+                            int surplusIndex = allocationTaskSupport.getSurplusIndex(threadIndex);
+                            if (surplusIndex != -1) {
+                                execute(sqls[surplusIndex], jdbcTemplate);
                             }
                         });
                     }

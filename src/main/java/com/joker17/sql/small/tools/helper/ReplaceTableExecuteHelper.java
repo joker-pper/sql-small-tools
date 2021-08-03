@@ -2,6 +2,7 @@ package com.joker17.sql.small.tools.helper;
 
 import com.joker17.sql.small.tools.factory.SqlManagerFactory;
 import com.joker17.sql.small.tools.manager.TableManager;
+import com.joker17.sql.small.tools.support.AllocationTaskSupport;
 import com.joker17.sql.small.tools.support.MultipleThreadRunner;
 import com.joker17.sql.small.tools.support.TakeTimeTools;
 import com.joker17.sql.small.tools.utils.SqlAnalysisUtils;
@@ -99,23 +100,21 @@ public class ReplaceTableExecuteHelper {
                         multipleThreadRunner.addTask(() -> execute(table, sqlText, jdbcTemplate));
                     }
                 } else {
-                    int avgNum = tableSize / maxThreads;
-                    int surplusNum = tableSize % maxThreads;
+                    AllocationTaskSupport allocationTaskSupport = AllocationTaskSupport.of(tableSize, maxThreads);
+
                     for (int i = 0; i < maxThreads; i++) {
                         final int threadIndex = i;
+                        int[] betweenIndexResults = allocationTaskSupport.getStartIndexAndEndIndex(threadIndex);
                         multipleThreadRunner.addTask(() -> {
-                            //每个线程平均要处理的table
-                            for (int j = 0; j < avgNum; j++) {
-                                //计算table索引位置
-                                int tableIndex = threadIndex * avgNum + j;
-                                execute(tables[tableIndex], sqlText, jdbcTemplate);
+                            //当前线程要处理的start index -> end index
+                            for (int j = betweenIndexResults[0]; j <= betweenIndexResults[1]; j++) {
+                                execute(tables[j], sqlText, jdbcTemplate);
                             }
 
-                            //剩余要处理的table
-                            if (threadIndex < surplusNum) {
-                                //计算table索引位置
-                                int tableIndex = maxThreads * avgNum + threadIndex;
-                                execute(tables[tableIndex], sqlText, jdbcTemplate);
+                            //当前线程要处理的surplus index
+                            int surplusIndex = allocationTaskSupport.getSurplusIndex(threadIndex);
+                            if (surplusIndex != -1) {
+                                execute(tables[surplusIndex], sqlText, jdbcTemplate);
                             }
                         });
                     }
@@ -141,4 +140,5 @@ public class ReplaceTableExecuteHelper {
             LOGGER.info("{} ==> execute take time: {}s", toExecuteSql, takeTimeTools.toExactSeconds());
         }
     }
+
 }
