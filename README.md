@@ -94,5 +94,8 @@
     # 执行出现bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException的原因
     1. sql语句存在错误
     2. 存在非法字符,e.g: \uFEFF (一般是转换编码格式为UTF8出现)
-
+ 
+    # 执行出现乱码,可在命令行中加入参数 -Dfile.encoding=utf-8
+     e.g:  
+        java -jar -Dfile.encoding=utf-8 sql-small-tools-1.0.0-SNAPSHOT.jar execute-sql -data-source ../src/test/resources/db.properties  -sql-text ../src/test/resources/execute-sql/execute-sql1.text -max-threads 1
 ``` 
